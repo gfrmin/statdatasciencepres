@@ -1,28 +1,324 @@
-statdatasciencepres
+Statistics for Data Science
 ========================================================
-author: Guy Freeman
+author: Guy Freeman // guy@dataguru.hk
 date: 27th October 2014
+width: 1600
+height: 1000
 
-First Slide
+Introduction
+====================================
+type: section
+
+Why do we need statistics?
 ========================================================
 
-For more details on authoring R presentations click the
-**Help** button on the toolbar.
+Everything we do nowadays involves data. Collecting it, understanding it, analysing it, explaining it, visualizing it, lying with it.
 
-- Bullet 1
-- Bullet 2
-- Bullet 3
+Some would even argue everything is data. I would and do.
 
-Slide With Code
-========================================================
+Statistics is data literacy.
 
-```{r}
-summary(cars)
+So if everything is data, then statistics is mastery of the universe.
+
+How to use statistics today
+===
+* Calculating stuff involving coin tosses and/or dice rolls <- NO THANKS
+
+How to use statistics today
+===
+incremental: true
+* Finding the missing Malaysian Airlines plane:
+![](538.png)
+
+***
+
+* Being attractive
+![](datingsuccess.png)
+
+Objective of this class
+===
+![](boyfriend.png)
+
+Example dataset: Wages in America
+===
+We have the wages for 3000 males in the United States. How are these wages affected by such factors as age and education level? Has this relationship changed over time?
+```{r echo=FALSE}
+library(ISLR)
+library(knitr)
+Wage$race <- factor(Wage$race, labels = c("White", "Black", "Asian", "Other"))
+Wage$wage <- round(Wage$wage*1000, 0)
+row.names(Wage) <- NULL
+kable(Wage[,c("year","age","race","wage")])
 ```
 
-Slide With Plot
-========================================================
-
-```{r, echo=FALSE}
-plot(cars)
+Example dataset: Wages in America -- Summary
+===
+We have the wages for 3000 males in the United States. How are these wages affected by such factors as age and education level? Has this relationship changed over time?
+```{r echo=FALSE}
+kable(summary(Wage[,c("year","age","race","wage")]))
 ```
+
+Visualize
+===
+```{r echo=FALSE,fig.width=15,fig.height=5}
+library(ggplot2)
+library(gridExtra)
+baseplot <- ggplot(Wage) + ylab("Wage")
+plot1 <- baseplot + geom_point(aes(x = age, y = wage)) + stat_smooth(aes(x = age, y = wage)) + xlab("Age")
+plot2 <- baseplot + geom_boxplot(aes(x = factor(year), y = wage)) + xlab("Year")
+plot3 <- baseplot + geom_boxplot(aes(x = factor(education), y = wage)) + xlab("Education")
+grid.arrange(plot1, plot2, plot3, ncol=3)
+```
+
+* Wage seems to plateau around age 40, with increasing uncertainty after age 60.
+* There is a slow increase of wage with year.
+* On average, wage increases with education level, but with wide variation around this trend.
+
+The nitty-gritty
+====================================
+type: section
+
+Variables
+===
+Everything that can take one of multiple values or states is a variable. It is the relationship and distribution of variables that we are interested in understanding.
+
+Everything is a variable.
+
+We can categorise variables in many different ways that affect how we can analyse and model them. Here is one way.
+
+Numerical and categorical variables
+===
+```{r echo=FALSE,fig.width=15,fig.height=5}
+```
+![](variable1.png)
+
+* Numerical variables take on numerical values
+* So we can carry out arithmetic and other mathematics on them
+* Categorical values have distinct labels, which even if numerical cannot be treated as actual numbers
+
+For example, height and weight are numerical, but someone's favourite colour or number is not.
+
+Continuous and discrete variables
+===
+![](variable2.png)
+
+Continuous variables can take any value in given intervals
+Discrete variables can only take certain values
+The difference between discrete (numerical) variables and categorical variables is that discrete variables have an order and scale. So year of employment is a discrete variable, but education level is just categorical.
+
+Ordinal and nominal variables
+===
+![](variable3.png)
+
+Ordinal variables have an order but no scale
+Nominal variables are just labels for different states
+Level of happiness is ordinal, but which flavour of ice cream makes you happiest is nominal. Time to eat some ice cream.
+
+Review!
+===
+incremental: true
+What types of variables can these most naturally modelled as?
+
+* Wage
+  - Numerical
+  - Continuous
+* Age
+  - Numerical
+  - Continuous or Discrete <- depends on whether it's age in whole year or part
+* Year
+  - Numerical
+  - Discrete
+***
+* Education level
+  - Categorical
+  - Ordinal
+* Flavour of ice cream that makes you happiest
+  - Categorical
+  - Nominal
+  - ICE CREAM
+  
+Inference
+===
+incremental: true
+
+What makes a variable take a particular value? If we believe the world is deterministic, then everything has causes and effects, and there is no randomness.
+
+*To predict the value a variable will take, we just have to measure the values of all variables that affect it.* <- Laplace's demon.
+
+But that's quite hard to do... to put it mildly.
+
+If we can't measure all causes and effects, then there will be uncertainty in what is going on.
+
+*Uncertainty can be represented using probabilities.* What we see can then be thought of as a manifestation of a stochastic process, just as if we (or God) toss a coin or roll a dice all the time.
+***
+![](argh.png)
+
+As we gather data we learn more about the process that generated it.
+
+Statistics
+===
+What if we want to predict someone's FAVOURITE ICE CREAM FLAVOUR? One possible model is that FAVOURITE ICE CREAM FLAVOUR is completely random for each individual, with probability distribution
+
+* P(FAVOURITE ICE CREAM FLAVOUR = Green tea with pecan) = \( p \)
+* P(FAVOURITE ICE CREAM FLAVOUR = Quadruple chocolate with chocolate sauce) = \( 1-p \)
+
+This is your first probability distribution! It is called the Bernoulli distribution.
+
+\( p \) is a parameter. What is the true value of $p$? We will never know. But we can estimate it using the declared FAVOURITE ICE CREAM FLAVOUR of a random sample of people.
+
+Conditional probability
+===
+Conditional probability — the probability of something (A) happening IF something else (B) happened: \[ P(A | B) = \frac{P(A and B)}{P(B)} \]
+
+[Notice that \( P(A |B) \ne P(B | A) \) in general]
+
+We use conditional probability to help us estimate parameters. One simple way is to choose \( p \) that maximises
+
+P(FAVOURITE ICE CREAM FLAVOURs of observed random sample | \( p \))
+
+This is the maximum likelihood estimate (MLE). There are many other ways to estimate parameters with different advantages and disadvantages.
+
+Independence
+===
+What is the probability that FAVOURITE ICE CREAM FLAVOURs of random sample turned out the way it did for any particular value of \( p \)?
+
+We know
+
+P(FAVOURITE ICE CREAM FLAVOUR of one person|\( p \))
+
+but not
+
+P(FAVOURITE ICE CREAM FLAVOURs of sample | \( p \))
+
+But actually, if we assume that the FAVOURITE ICE CREAM FLAVOUR of each person is independent, then we can just multiply the probabilities together! So
+
+P(FAVOURITE ICE CREAM FLAVOURs of sample | \( p \)) = P(FAVOURITE ICE CREAM FLAVOUR of one person|\( p \)) * P(FAVOURITE ICE CREAM FLAVOUR of another person|\( p \)) * P(FAVOURITE ICE CREAM FLAVOUR of yet another person|\( p \)) * etc
+
+Binomial distribution
+===
+incremental: true
+This probability distribution turns out to only depend on the number of people who subscribe to each FAVOURITE ICE CREAM FLAVOUR, and is called the binomial distribution. Written mathematically:
+
+\[ Pr(X = k) = {n \choose k} p^k (1-p)^{(n-k)} \]
+
+where \( k \) is the number of people in the sample who like Green tea with pecan so that \( n-k \) is the number of people who like Quadruple chocolate with chocolate sauce. \( {n \choose k} \) is the number of possible ways \( k \) people out of \( n \) could like Green tea with pecan. It is possible.
+
+The MLE of \( p \) turns out to be
+
+\[ \hat{p} = \frac{k}{n} \]
+
+which makes sense. (\( \hat{p} \) with a hat is our estimate of \( p \) from the data).
+
+Uncertainty of estimates -- confidence intervals
+===
+We have an estimate for the probability someone's FAVOURITE ICE CREAM FLAVOUR will be Green tea with pecan. But could other values of \( p \) also be plausible? Of course:
+
+If we ask only 3 people and 1 says their FAVOURITE ICE CREAM FLAVOUR is Green tea with pecan, we will estimate \( p \) as \( \hat{p} = \frac{1}{3} \). But maybe we just stumbled upon the only person in the world who liked Green tea with pecan in our little sample! So \( p \) could just as easily be \( \frac{1}{5} \) or even \( \frac{1}{100} \).
+
+A confidence interval is an interval within which we are confident to a certain degree that the true value of \( p \) lies, given the data we observed.
+
+We can construct this confidence interval by simulating the dataset many times for different values of \( p \). We keep the values of \( p \) where something like the data we actually observed (or actually just \( \hat{p} \) occurs a given number of times.
+
+Uncertainty of estimates -- confidence intervals
+===
+If \( n=3 \), what is the probability distribution of \( \hat{p} \) if \( p \) is actually \( \frac{1}{3} \)? Simulating this 100 times yields:
+
+```{r echo=FALSE}
+hist(rbinom(1000,3,1/3)/3)
+```
+
+Obviously it's plausible that we will observe \( \hat{p}=\frac{1}{3} \) much of the time, but also estimate \( \hat{p}=0 \) and \( \hat{p}=\frac{2}{3} \) many times (incorrectly).
+
+Uncertainty of estimates -- confidence intervals
+===
+What about if \( p \) is actually \( \frac{1}{10} \)?
+
+```{r echo=FALSE}
+hist(rbinom(1000,3,1/10)/3)
+```
+
+We will still get 1 out of 3 who love Green tea with pecan around 25% of the time!
+
+Uncertainty of estimates -- confidence intervals
+===
+What happens if we ask 1000 people? With true \( p \) equal to \( \frac{1}{10} \), the distribution of \( \hat{p} \) is
+
+```{r echo=FALSE}
+hist(rbinom(1000,1000,1/10)/10)
+```
+
+With a bigger sample, we would estimate \( p \) incorrectly far less often. If we do ever have an estimate of \( \hat{p}=\frac{1}{10} \) from a sample of 1000 people, we can be pretty sure \( p \ne \frac{1}{10} \)
+
+*A confidence interval is the range of plausible values of \( p \) given our estimate \( \hat{p} \).* A 95% confidence interval, for example, contains the true value of \( p \) 95% of the time. It is obviously a function of \( n \).
+
+Other distributions and estimates of their parameters
+===
+There are many different classic distributions for different variable types and different ways to estimate their parameters. Here are some examples:
+
+* For continuous variables:
+  - Normal distribution, the famous “bell-shaped curve”. Its two parameters are its mean and variance (the extent to which it varies around the mean). They are respectively estimated with the sample mean, and sample variance divided by size of the sample!
+  
+```{r echo=FALSE}
+plot(density(rnorm(100000)))
+```
+
+Other distributions and estimates of their parameters
+===
+There are many different classic distributions for different variable types and different ways to estimate their parameters. Here are some examples:
+
+* For positive discrete variables:
+  - Poisson distribution, where the mean equals the variance. This is the distribution for how many buses will come in the next minute or hour. It has only one parameter, estimated by measuring the rate at which something happens.
+
+```{r echo=FALSE}
+hist(rpois(10000, 1))
+```
+
+Correlation and regression
+===
+If one variable tends to go up when another goes up, and down when the other goes down, the two variables are correlated.
+
+Correlation takes values between -1 and 1, depending on stregth and direction of the linear relationship. This diagram is a good overview of what this means:
+
+![](cor.png)
+
+Bias-variance trade-off; or, there are many ways to judge a model
+===
+We assumed so far that we know which probability distribution generates our variables. But how can we assess whether our choice of distribution is good or not?
+
+One purpose of statistical analysis is to be able to predict the future. (Statistics is like magic in that sense). So a good model predicts well. A good prediction is one that is close to the true value. How to measure this closeness, or _fit_?
+
+For continuous variables, the most common measure is the *mean squared error* (MSE): the sum of the *squares* of the differences between the values a model predicts and the actual values they turned out to be.
+
+It turns out that the MSE can be decomposed into three sorts of non-overlapping error:
+
+* the variance of the prediction
+* the bias of the prediction
+* the variance of the noise
+
+Bias-variance trade-off; or, there are many ways to judge a model
+===
+*“The variance of the prediction”* refers to how much a prediction would change if the data were changed. Basically, this is how flexible the model is.
+
+*“The bias of the prediction”* is the error in prediction because we are using a simpler model than the real world. For example, a linear model tries to draw one straight line through all data points, even when they are not in a line! But the line won't change much if a few data points are moved a little bit.
+
+As we increase the flexibility of models to include more parameters, bias tends to drop fast while variance tends to rise slowly. However, eventually the increased flexibility just increases the variance without reducing bias, and MSE goes up again. The trick is have just the right amount of flexibility…
+
+*“The variance of the noise”* is God throwing dice :)
+
+Bias-variance trade-off; or, there are many ways to judge a model
+===
+If the data really is following a linear model, then using a more complicated model just makes it wiggle unnecessarily.
+
+![](bias1.png)
+
+Bias-variance trade-off; or, there are many ways to judge a model
+===
+But if the data is non-linear, please stop using a linear model. (Most researchers have not learnt this lesson.)
+
+![](bias2.png)
+
+Conclusion
+===
+If you want to understand the world, you need to understand statistics. Live life statistically. And join the data science course we offer :)
+
+![](argh.png)
